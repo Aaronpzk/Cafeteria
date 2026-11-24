@@ -1,0 +1,108 @@
+@model Cafeteria.WEB.Models.CafeteriaPaginaViewModel
+@{
+    ViewData["Title"] = "Cafetería Aroma";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 2rem; background: #f7f3ef; color: #38251b; }
+        header, .bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+        .card, form, table { background: white; border-radius: 10px; padding: 1rem; box-shadow: 0 2px 8px #0001; }
+        .price { color: #8b4d2e; font-size: 1.25rem; font-weight: bold; }
+        input, select, textarea { box-sizing: border-box; width: 100%; padding: .6rem; margin: .25rem 0 .7rem; }
+        button, a.button { background: #6f3f27; color: white; border: 0; border-radius: 6px; padding: .65rem .9rem; text-decoration: none; cursor: pointer; }
+        .message { background: #d9f2df; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
+        .validation { color: #a00000; }
+        section { margin-top: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: .65rem; border-bottom: 1px solid #ddd; text-align: left; }
+    </style>
+</head>
+<body>
+<header>
+    <div><h1>Cafetería Aroma</h1><p>Menú, pedidos y administración en una sola página</p></div>
+    @if (Model.EsAdministrador)
+    {
+        <form asp-controller="Cuenta" asp-action="Logout" method="post"><button type="submit">Cerrar sesión</button></form>
+    }
+    else
+    {
+        <a class="button" asp-controller="Cuenta" asp-action="Login">Acceso administrador</a>
+    }
+</header>
+
+@if (TempData["Mensaje"] is string mensaje) { <div class="message">@mensaje</div> }
+
+<section>
+    <h2>Menú</h2>
+    <div class="grid">
+    @foreach (var cafe in Model.Cafes)
+    {
+        <article class="card">
+            <h3>@cafe.Nombre</h3>
+            <p>@cafe.Descripcion</p>
+            <p class="price">@cafe.Precio.ToString("C")</p>
+        </article>
+    }
+    </div>
+</section>
+
+<section>
+    <h2>Realizar pedido</h2>
+    <form asp-action="CrearPedido" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation"></div>
+        <label asp-for="NuevoPedido.Cliente">Nombre</label>
+        <input asp-for="NuevoPedido.Cliente" placeholder="Tu nombre" />
+        <span asp-validation-for="NuevoPedido.Cliente" class="validation"></span>
+        <label asp-for="NuevoPedido.CafeId">Café</label>
+        <select asp-for="NuevoPedido.CafeId" asp-items="Model.NuevoPedido.Cafes"><option value="">Selecciona un café</option></select>
+        <span asp-validation-for="NuevoPedido.CafeId" class="validation"></span>
+        <label asp-for="NuevoPedido.Cantidad">Cantidad</label>
+        <input asp-for="NuevoPedido.Cantidad" min="1" max="20" />
+        <span asp-validation-for="NuevoPedido.Cantidad" class="validation"></span>
+        <label asp-for="NuevoPedido.Observaciones">Observaciones</label>
+        <textarea asp-for="NuevoPedido.Observaciones"></textarea>
+        <button type="submit">Confirmar pedido</button>
+    </form>
+</section>
+
+@if (Model.EsAdministrador)
+{
+    <section>
+        <h2>Administrar menú y precios</h2>
+        <form asp-controller="Administracion" asp-action="CrearCafe" method="post">
+            <h3>Nuevo producto</h3>
+            <input asp-for="NuevoCafe.Nombre" placeholder="Nombre" />
+            <input asp-for="NuevoCafe.Descripcion" placeholder="Descripción" />
+            <input asp-for="NuevoCafe.Precio" type="number" step="0.01" placeholder="Precio" />
+            <button type="submit">Crear producto</button>
+        </form>
+        <table><thead><tr><th>Producto</th><th>Precio</th><th>Disponible</th><th>Acciones</th></tr></thead><tbody>
+        @foreach (var cafe in Model.Cafes)
+        {
+            <tr><form asp-controller="Administracion" asp-action="EditarCafe" method="post"><input type="hidden" name="Id" value="@cafe.Id" /><td><input name="Nombre" value="@cafe.Nombre" /></td><td><input name="Precio" type="number" step="0.01" value="@cafe.Precio" /></td><td>@(cafe.Disponible ? "Sí" : "No")</td><td><input type="hidden" name="Descripcion" value="@cafe.Descripcion" /><input type="hidden" name="Disponible" value="true" /><button type="submit">Guardar</button></td></form></tr>
+        }
+        </tbody></table>
+    </section>
+
+    <section>
+        <h2>Pedidos recibidos</h2>
+        <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Estado</th></tr></thead><tbody>
+        @foreach (var pedido in Model.Pedidos) { <tr><td>@pedido.Fecha.ToLocalTime().ToString("g")</td><td>@pedido.Cliente</td><td>@pedido.Cafe.Nombre</td><td>@pedido.Cantidad</td><td>@pedido.Estado</td></tr> }
+        </tbody></table>
+    </section>
+
+    <section>
+        <h2>Cantidad vendida</h2>
+        <table><thead><tr><th>Producto</th><th>Unidades</th><th>Importe</th></tr></thead><tbody>
+        @foreach (var venta in Model.Ventas) { <tr><td>@venta.Cafe</td><td>@venta.CantidadVendida</td><td>@venta.Importe.ToString("C")</td></tr> }
+        </tbody></table>
+    </section>
+}
+</body>
+</html>

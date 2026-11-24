@@ -1,0 +1,45 @@
+@model Cafeteria.WEB.Models.PedidoViewModel
+@{
+	ViewData["Title"] = "Nuevo pedido";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>@ViewData["Title"] - Cafetería</title>
+	<style>
+		body { font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 2rem; background: #f7f3ef; color: #38251b; }
+		form { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px #0001; }
+		label { display: block; margin-top: 1rem; font-weight: bold; }
+		input, select, textarea { box-sizing: border-box; width: 100%; padding: .7rem; margin-top: .35rem; border: 1px solid #ccc; border-radius: 5px; }
+		button, a { display: inline-block; margin-top: 1.5rem; background: #6f3f27; color: white; border: 0; border-radius: 6px; padding: .7rem 1rem; text-decoration: none; cursor: pointer; }
+		.validation { color: #a00000; }
+	</style>
+</head>
+<body>
+	<h1>Realizar pedido</h1>
+	<form asp-action="Pedido" method="post">
+		<div asp-validation-summary="ModelOnly" class="validation"></div>
+		<label asp-for="Cliente"></label>
+		<input asp-for="Cliente" placeholder="Tu nombre" />
+		<span asp-validation-for="Cliente" class="validation"></span>
+
+		<label asp-for="CafeId"></label>
+		<select asp-for="CafeId" asp-items="Model.Cafes">
+			<option value="">Selecciona un café</option>
+		</select>
+		<span asp-validation-for="CafeId" class="validation"></span>
+
+		<label asp-for="Cantidad"></label>
+		<input asp-for="Cantidad" min="1" max="20" />
+		<span asp-validation-for="Cantidad" class="validation"></span>
+
+		<label asp-for="Observaciones">Observaciones</label>
+		<textarea asp-for="Observaciones" rows="4" placeholder="Leche vegetal, poco azúcar, etc."></textarea>
+
+		<button type="submit">Confirmar pedido</button>
+		<a asp-action="Index">Volver al menú</a>
+	</form>
+</body>
+</html>

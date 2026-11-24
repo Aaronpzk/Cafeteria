@@ -1,0 +1,6 @@
+@model IReadOnlyList<Cafeteria.Domain.Entities.Pedido>
+@{ ViewData["Title"] = "Pedidos"; }
+<h1>Pedidos</h1><a asp-action="Index">Menú administrativo</a> | <a asp-action="Ventas">Cantidad vendida</a>
+<table><thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Estado</th></tr></thead><tbody>
+@foreach (var pedido in Model) { <tr><td>@pedido.Fecha.ToLocalTime().ToString("g")</td><td>@pedido.Cliente</td><td>@pedido.Cafe.Nombre</td><td>@pedido.Cantidad</td><td>@pedido.PrecioUnitario.ToString("C")</td><td>@pedido.Estado</td></tr> }
+</tbody></table>

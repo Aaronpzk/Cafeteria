@@ -1,0 +1,12 @@
+@model IReadOnlyList<Cafeteria.Domain.Entities.Cafe>
+@{ ViewData["Title"] = "Administración del menú"; }
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>@ViewData["Title"]</title>
+<style>body{font-family:Arial;max-width:1100px;margin:2rem auto;padding:1rem;background:#f7f3ef;color:#38251b}table{width:100%;background:white;border-collapse:collapse}th,td{padding:.75rem;border-bottom:1px solid #ddd;text-align:left}a,button{background:#6f3f27;color:white;border:0;border-radius:5px;padding:.5rem .75rem;text-decoration:none;cursor:pointer}.off{color:#a00000}.message{background:#d9f2df;padding:1rem;margin-bottom:1rem}</style></head><body>
+<h1>Administración</h1>
+<nav><a asp-action="CrearCafe">Nuevo producto</a> <a asp-action="Pedidos">Pedidos</a> <a asp-action="Ventas">Cantidad vendida</a> <a asp-controller="Cafeteria" asp-action="Index">Ver menú</a></nav>
+@if (TempData["Mensaje"] is string mensaje) { <p class="message">@mensaje</p> }
+<table><thead><tr><th>Producto</th><th>Descripción</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+@foreach (var cafe in Model) { <tr><td>@cafe.Nombre</td><td>@cafe.Descripcion</td><td>@cafe.Precio.ToString("C")</td><td class="@(cafe.Disponible ? "" : "off")">@(cafe.Disponible ? "Disponible" : "No disponible")</td><td><a asp-action="EditarCafe" asp-route-id="@cafe.Id">Editar</a><form asp-action="CambiarDisponibilidad" method="post" style="display:inline"><input type="hidden" name="id" value="@cafe.Id" /><button type="submit">@(cafe.Disponible ? "Desactivar" : "Activar")</button></form></td></tr> }
+</tbody></table>
+<form asp-controller="Cuenta" asp-action="Logout" method="post"><button type="submit">Cerrar sesión</button></form>
+</body></html>

@@ -1,0 +1,19 @@
+@model Cafeteria.WEB.Models.LoginViewModel
+@{
+	ViewData["Title"] = "Acceso administrador";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>@ViewData["Title"]</title>
+<style>body{font-family:Arial;max-width:500px;margin:3rem auto;padding:2rem;background:#f7f3ef;color:#38251b}form{background:white;padding:2rem;border-radius:12px;box-shadow:0 2px 8px #0001}label{display:block;margin-top:1rem;font-weight:bold}input{box-sizing:border-box;width:100%;padding:.7rem;margin-top:.35rem}button,a{display:inline-block;margin-top:1.5rem;background:#6f3f27;color:white;border:0;border-radius:6px;padding:.7rem 1rem;text-decoration:none}.validation{color:#a00000}</style></head>
+<body>
+<h1>Acceso administrador</h1>
+<form asp-action="Login" method="post">
+	<div asp-validation-summary="ModelOnly" class="validation"></div>
+	<label asp-for="Usuario"></label><input asp-for="Usuario" autofocus /><span asp-validation-for="Usuario" class="validation"></span>
+	<label asp-for="Contrasena"></label><input asp-for="Contrasena" /><span asp-validation-for="Contrasena" class="validation"></span>
+	<button type="submit">Entrar</button>
+	<a asp-controller="Cafeteria" asp-action="Index">Volver al menú</a>
+</form>
+</body>
+</html>

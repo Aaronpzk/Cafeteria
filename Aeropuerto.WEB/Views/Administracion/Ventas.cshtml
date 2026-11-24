@@ -1,0 +1,6 @@
+@model IReadOnlyList<Cafeteria.WEB.Models.VentaCafeViewModel>
+@{ ViewData["Title"] = "Cantidad vendida"; }
+<h1>Cantidad vendida por producto</h1><a asp-action="Index">Menú administrativo</a> | <a asp-action="Pedidos">Pedidos</a>
+<table><thead><tr><th>Producto</th><th>Unidades vendidas</th><th>Importe total</th></tr></thead><tbody>
+@foreach (var venta in Model) { <tr><td>@venta.Cafe</td><td>@venta.CantidadVendida</td><td>@venta.Importe.ToString("C")</td></tr> }
+</tbody></table>
