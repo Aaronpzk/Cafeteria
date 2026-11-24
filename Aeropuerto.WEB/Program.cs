@@ -13,16 +13,43 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Cuenta/Login";
         options.AccessDeniedPath = "/Cuenta/AccesoDenegado";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
     });
 builder.Services.AddAuthorization();
 
-// Configuración de Entity Framework Core con SQL Server
+// Render ejecuta Linux y debe usar PostgreSQL. SQL Server se mantiene para desarrollo local.
 var connectionString = builder.Configuration.GetConnectionString("CafeteriaDB")
     ?? throw new InvalidOperationException(
-        "No se encontró la cadena de conexión 'CafeteriaDB' en appsettings.json.");
+        "No se encontró la cadena de conexión 'CafeteriaDB'. Configúrala como ConnectionStrings__CafeteriaDB.");
+
+var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "SqlServer";
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (databaseProvider.Equals("Postgres", StringComparison.OrdinalIgnoreCase) ||
+        databaseProvider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase))
+    {
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
+
+if (!builder.Environment.IsDevelopment() &&
+    (string.IsNullOrWhiteSpace(builder.Configuration["AdminSettings:Username"]) ||
+     string.IsNullOrWhiteSpace(builder.Configuration["AdminSettings:Password"])))
+{
+    throw new InvalidOperationException(
+        "En producción deben configurarse AdminSettings__Username y AdminSettings__Password.");
+}
 
 var app = builder.Build();
 
@@ -82,7 +109,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Render termina HTTPS en su proxy y entrega HTTP al contenedor.
+// No activar UseHttpsRedirection aquí porque provoca bucles o avisos de puerto HTTPS.
 app.UseStaticFiles();
 
 app.UseRouting();
